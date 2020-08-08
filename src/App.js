@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
-import { motion } from 'framer-motion'
+import { motion, useMotionValue } from 'framer-motion'
 import './App.css';
 
 function App() {
   
     
-    const [text1, setText1] = useState([<div className="text0" key="0"></div>])
+    const [text1, setText1] = useState([])
     
     const [showInput, setShowInput] = useState(false)
     
@@ -31,9 +31,11 @@ function App() {
     const [allowPan, setAllowPan] = useState(false)
     
     const [textMouseDown, setTextMouseDown] = useState(false)
+    const [textMouseDownId, setTextMouseDownId] = useState(true)
     
     useEffect(() => {
-      // console.log('useffecting')
+      console.log('useffecting')
+      x.onChange(latest => {console.log(latest)})
     })
   
 
@@ -113,8 +115,8 @@ function App() {
         setposX(posX)
         setposY(posY)
         
-        console.log('double click')
-        console.log(posX, posY)
+        // console.log('double click')
+        // console.log(posX, posY)
         
         // setTextBox1(<input className="mainInput" autoFocus="autofocus" onFocus={handleFocus} onMouseOver={handleFocus} onKeyUp={handleEnter} style={{left: posX - 3, top: posY - 11}}></input>)
         
@@ -147,34 +149,13 @@ function App() {
 
         if (e.keyCode === 13 && !e.shiftKey && e.target.value.trim().length !== 0) {
           e.target.style.width = 20 + 'vh'
-          console.log(posX);
-          console.log(typeof e.target.value)
-          console.log(e.target.value.trim().length)
+          // console.log(posX);
+          // console.log(typeof e.target.value)
+          // console.log(e.target.value.trim().length)
           
           setText1([...text1, 
-            <motion.div 
-            className="text1" 
-            style={{left: posX - 4, top: posY - 8,}} 
-            key={text1.length} 
-            drag
-            dragMomentum={false}
-            >
-              <div 
-                className="textSpan" 
-                contentEditable="true" 
-                spellCheck="false" 
-                style={{
-                  whiteSpace: 'pre',
-                  borderColor: `${textMouseDown ? 'black' : 'transparent'}`,
-                }} 
-                onMouseDown={handleTextMouseDown} 
-                onMouseUp={handleMouseUp} 
-                onDoubleClick={handleFocus}
-                >
-                  {e.target.value}
-              </div>
-            </motion.div>
-          ])
+            {value: e.target.value, posX: posX, posY: posY, transformX: 0, transformY: 0}
+          ] )
           
           // setShowInput(false)
           setposY(posY + 20)
@@ -192,8 +173,9 @@ function App() {
     }
     
     function handleTextMouseDown(e) {
-      console.log(e.target.className)
+      console.log(e.target.id)
       setTextMouseDown(true)
+      setTextMouseDownId(parseInt(e.target.id))
       
       if(e.target != document.activeElement) {
         e.preventDefault()
@@ -202,6 +184,7 @@ function App() {
     
     function handleMouseUp(e) {
       setTextMouseDown(false)
+      setTextMouseDownId(null)
     }
     
     function handleKeyDown(e) {
@@ -212,13 +195,13 @@ function App() {
       }
       
       let characterLength = e.target.value.length
-      console.log(characterLength)
+      // console.log(characterLength)
       let style = window.getComputedStyle(e.target)
       let width = parseInt(style.getPropertyValue('width'))
-      console.log(width)
-      console.log(characterLength / width)
+      // console.log(width)
+      // console.log(characterLength / width)
       if (characterLength / width > .1) {
-        console.log('changing width');
+        // console.log('changing width');
         e.target.style.width = (width + width/10) + 'px'
       }
     }
@@ -299,6 +282,41 @@ function App() {
       setAllowPan(false)
     }
     
+    
+    
+    
+    
+    function onDragEnd(event, info) {
+      console.log(info.offset.x, info.offset.y)
+      console.log(event.target.id)
+      // console.log(x.get())
+      // if(text1[0].transformX) {
+      //   console.log(text1[0].transformX)
+      //   }
+      if(event.target.id) {
+      let id = parseInt(event.target.id)
+      console.log(event.target.id)
+      
+      let newTextArray = [...text1]
+      let newText = newTextArray[id]
+      
+      newText.transformX = info.offset.x
+      newText.transformY = info.offset.y
+      console.log(newText)
+      
+      newTextArray[id] = newText
+      setText1(newTextArray)
+      }
+    }
+    
+    
+    
+    
+    
+    
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+    
   return (
     <motion.div 
       className="App" 
@@ -340,7 +358,60 @@ function App() {
       >
       </motion.div>
       
-      {text1}
+      {text1.map((text, i) => {
+        console.log(text)
+        console.log('x =' + text.x,'y =' + text.y)
+        return <motion.div 
+        className="text1" 
+        style={{
+          left: text.posX - 4, 
+          top: text.posY - 8,
+          transform: `translate3d(${text.x}px, ${text.y}px)`,
+        }} 
+        key={i}
+        drag
+        dragMomentum={false}
+        onDragEnd={(event, info) => {
+          console.log(info.offset.x, info.offset.y)
+          console.log(event.target.id)
+          // console.log(x.get())
+          // if(text1[0].transformX) {
+          //   console.log(text1[0].transformX)
+          //   }
+          if(event.target.id) {
+            let id = parseInt(event.target.id)
+            console.log(event.target.id)  
+            
+            let newTextArray = [...text1]
+            let newText = newTextArray[id]
+            
+            newText = Object.assign(newText, info.offset)
+            console.log(newText)
+            
+            newTextArray[id] = newText
+            setText1(newTextArray)
+          }
+        }}
+        >
+          <div 
+            className="textSpan"
+            id={i}
+            contentEditable="true" 
+            spellCheck="false" 
+            style={{
+              whiteSpace: 'pre',
+              // borderColor: `${textMouseDownId === i ? 'black' : 'transparent'}`,
+              color: `${textMouseDownId === i ? '#ce3636' : 'inherit'}`,
+            }} 
+            onMouseDown={handleTextMouseDown} 
+            onMouseUp={handleMouseUp} 
+            onDoubleClick={handleFocus}
+            suppressContentEditableWarning={true}
+            >
+              {text.value}
+          </div>
+        </motion.div>
+      })}
       
     </motion.div>
   );

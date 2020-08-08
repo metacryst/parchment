@@ -72,12 +72,15 @@
 .textSpan {
   outline: 0;
   border: 2px solid transparent;
+  padding: 1px;
 }
 
 .textSpan:hover {
-  border: 2px solid black;
   cursor: pointer;
-  padding: 1px;
+}
+
+.text1:hover {
+  color: brown;
 }
 
 .textSpan:focus {
