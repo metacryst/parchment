@@ -65,7 +65,7 @@
 
 
 
-.text1 {
+.textArray {
   position: fixed;
 }
 
@@ -79,7 +79,7 @@
   cursor: pointer;
 }
 
-.text1:hover {
+.textArray:hover {
   color: brown;
 }
 

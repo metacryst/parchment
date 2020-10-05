@@ -6,7 +6,7 @@ import './App.css';
 function App() {
   
     
-    const [text1, setText1] = useState([])
+    const [textArray, setTextArray] = useState([])
     
     const [showInput, setShowInput] = useState(false)
     
@@ -33,72 +33,25 @@ function App() {
     const [textMouseDown, setTextMouseDown] = useState(false)
     const [textMouseDownId, setTextMouseDownId] = useState(true)
     
+    
     useEffect(() => {
+            
       console.log('useffecting')
+      
+      // localStorage.removeItem('textArray')
+      
+      let storedTextArray = JSON.parse(localStorage.getItem('textArray'));
+      console.log(storedTextArray);
+      
+      if(textArray !== storedTextArray) {
+        setTextArray(storedTextArray);
+      }
+
       x.onChange(latest => {console.log(latest)})
-    })
+    }, [])
   
-
-  
-    // document.addEventListener('mousedown', (e) => {
-    //   // prevent weird highlighting
-    //   if(e.target.className === "App" && e.detail > 1) {
-    //     e.preventDefault()
-    //   }
-    //   // if(e.target.className === "App" && e.detail === 1) {
-    //   //   document.addEventListener('mouseup', handleMouseUp)
-
-    //   //   document.addEventListener('mousemove', handleClickedMouseMove)
-    //   //   // document.addEventListener('mouseup', (e) => {
-    //   //   //   if(e.target.className === "App" && e.detail === 1) {
-    //   //   //     console.log('removingevent')
-    //   //   //     document.removeEventListener('mousemove', handleClickedMouseMove)
-    //   //   //     initialMouseDown = null
-    //   //   //   }
-    //   //   // })
-    //   // }
-    // });
-    // document.addEventListener('mousemove', () => {
-    //   console.log(document.body.style.cursor)
-    // })
-    
-    // function handleMouseUp() {
-    //   console.log('removingevent')
-    //   document.removeEventListener('mousemove', handleClickedMouseMove)
-    //   initialMouseDown = null
-    //   setShowHighlightTool(false)
-    //   document.removeEventListener('mouseup', handleMouseUp)
-    // }
-    
-    
-    // let initialMouseDown = null
-    
-    // function handleClickedMouseMove(e) {
-    //   console.log(e.clientX)    
-      
-    //   let posX = e.clientX
-    //   let posY = e.clientY
-      
-    //   if(!showHighlightTool) {
-    //     setShowHighlightTool(true)
-    //   }
-      
-    //   if (!initialMouseDown) {
-    //     initialMouseDown = [posX, posY]
-    //   } else if(!highlightPosX) {
-    //     setHighlightPosX(initialMouseDown[0])
-    //     setHighlightPosY(initialMouseDown[1])
-    //   }
-      
-    //   setHighlightWidth(Math.abs(initialMouseDown[0] - posX))
-    //   setHighlightHeight(Math.abs(initialMouseDown[0] - posY))
-      
-      
-    //   console.log(initialMouseDown)
-    // }
   
     
-    // let textBox = <div className="testDiv" style={{display: "hidden"}} ></div>
     
     function newText(e) {
 
@@ -140,9 +93,6 @@ function App() {
         // e.target.innerText = ''
         
       }
-      
-      
-            
     }
     
     function handleKeyUp(e) {
@@ -153,7 +103,7 @@ function App() {
           // console.log(typeof e.target.value)
           // console.log(e.target.value.trim().length)
           
-          setText1([...text1, 
+          setTextArray([...textArray, 
             {value: e.target.value, posX: posX, posY: posY, transformX: 0, transformY: 0}
           ] )
           
@@ -173,7 +123,7 @@ function App() {
     }
     
     function handleTextMouseDown(e) {
-      console.log(e.target.id)
+      // console.log(e.target.id)
       setTextMouseDown(true)
       setTextMouseDownId(parseInt(e.target.id))
       
@@ -290,14 +240,14 @@ function App() {
       console.log(info.offset.x, info.offset.y)
       console.log(event.target.id)
       // console.log(x.get())
-      // if(text1[0].transformX) {
-      //   console.log(text1[0].transformX)
+      // if(textArray[0].transformX) {
+      //   console.log(textArray[0].transformX)
       //   }
       if(event.target.id) {
       let id = parseInt(event.target.id)
       console.log(event.target.id)
       
-      let newTextArray = [...text1]
+      let newTextArray = [...textArray]
       let newText = newTextArray[id]
       
       newText.transformX = info.offset.x
@@ -305,7 +255,7 @@ function App() {
       console.log(newText)
       
       newTextArray[id] = newText
-      setText1(newTextArray)
+      setTextArray(newTextArray)
       }
     }
     
@@ -330,7 +280,7 @@ function App() {
         cursor: `${textMouseDown ? 'pointer' : 'inherit'}`
       }}
     >
-      
+
       <textarea 
         className={showInput ? 'mainInput' : 'hidden'} 
         autoFocus="autofocus" 
@@ -358,38 +308,42 @@ function App() {
       >
       </motion.div>
       
-      {text1.map((text, i) => {
-        console.log(text)
-        console.log('x =' + text.x,'y =' + text.y)
+      {textArray.map((text, i) => {
+        // console.log(text)
+        // console.log('x = ' + text.x,'y = ' + text.y)
         return <motion.div 
-        className="text1" 
+        className="textArray" 
         style={{
           left: text.posX - 4, 
           top: text.posY - 8,
-          transform: `translate3d(${text.x}px, ${text.y}px)`,
+          transform: `translate3d(${text.transformX}px, ${text.transformY}px)`,
         }} 
         key={i}
         drag
         dragMomentum={false}
         onDragEnd={(event, info) => {
           console.log(info.offset.x, info.offset.y)
-          console.log(event.target.id)
+          // console.log(event.target.id)
           // console.log(x.get())
-          // if(text1[0].transformX) {
-          //   console.log(text1[0].transformX)
+          // if(textArray[0].transformX) {
+          //   console.log(textArray[0].transformX)
           //   }
           if(event.target.id) {
             let id = parseInt(event.target.id)
-            console.log(event.target.id)  
+            console.log(event.target.id)
             
-            let newTextArray = [...text1]
+            let newTextArray = [...textArray]
             let newText = newTextArray[id]
             
-            newText = Object.assign(newText, info.offset)
+            newText.transformX = info.offset.x
+            newText.transformY = info.offset.y
             console.log(newText)
             
             newTextArray[id] = newText
-            setText1(newTextArray)
+            
+            // localStorage['textArray'] = JSON.stringify(newTextArray)
+            localStorage.setItem('textArray', JSON.stringify(newTextArray));
+            // setTextArray(newTextArray)
           }
         }}
         >
