@@ -31,7 +31,7 @@ function App() {
     const [allowPan, setAllowPan] = useState(false)
     
     const [textMouseDown, setTextMouseDown] = useState(false)
-    const [textMouseDownId, setTextMouseDownId] = useState(true)
+    const [textMouseDownId, setTextMouseDownId] = useState(null)
     
     
     useEffect(() => {
@@ -162,7 +162,15 @@ function App() {
     
     function appMouseDown(event, info) {
       if(event.target.className==='App') {
+        console.log('app click')
         setAllowPan(true)
+      }
+    }
+    
+    function appMouseUp(event, info) {
+      if(event.target.className==='App') {
+        console.log('app click')
+        setAllowPan(false)
       }
     }
     
@@ -236,31 +244,6 @@ function App() {
     
     
     
-    function onDragEnd(event, info) {
-      console.log(info.offset.x, info.offset.y)
-      console.log(event.target.id)
-      // console.log(x.get())
-      // if(textArray[0].transformX) {
-      //   console.log(textArray[0].transformX)
-      //   }
-      if(event.target.id) {
-      let id = parseInt(event.target.id)
-      console.log(event.target.id)
-      
-      let newTextArray = [...textArray]
-      let newText = newTextArray[id]
-      
-      newText.transformX = info.offset.x
-      newText.transformY = info.offset.y
-      console.log(newText)
-      
-      newTextArray[id] = newText
-      setTextArray(newTextArray)
-      }
-    }
-    
-    
-    
     
     
     
@@ -273,7 +256,7 @@ function App() {
       onClick={newText} 
       onPan={allowPan ? onPan : null} 
       onPanStart={allowPan ? handlePanStart : null} 
-      onPanEnd={handlePanEnd}
+      onPanEnd={allowPan ? handlePanEnd : null}
       onMouseDown={appMouseDown}
       onMouseUp={handleMouseUp}
       style={{
@@ -321,6 +304,9 @@ function App() {
         key={i}
         drag
         dragMomentum={false}
+        onDragStart={(event, info) => {
+          
+        }}
         onDragEnd={(event, info) => {
           console.log(info.offset.x, info.offset.y)
           // console.log(event.target.id)
@@ -344,6 +330,8 @@ function App() {
             // localStorage['textArray'] = JSON.stringify(newTextArray)
             localStorage.setItem('textArray', JSON.stringify(newTextArray));
             // setTextArray(newTextArray)
+          } else {
+            console.log('no id?');
           }
         }}
         >
